@@ -1,0 +1,37 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+
+# Load datasets
+benign_df = pd.read_csv('1.Benign_list_big_final.csv')
+phishing_df = pd.read_csv('4.phishing.csv')
+valid_df = pd.read_csv('2.online-valid.csv')
+legitimate_df = pd.read_csv('3.legitimate.csv')
+urldata_df = pd.read_csv('5.urldata.csv')
+
+# Data preparation
+# Combine datasets and create labels
+benign_df['label'] = 0  # Not spam
+phishing_df['label'] = 1  # Spam
+combined_df = pd.concat([benign_df, phishing_df])
+
+# Feature engineering (example)
+# Convert categorical features to numerical
+combined_df = pd.get_dummies(combined_df)
+
+# Split data into features and target
+X = combined_df.drop('label', axis=1)
+y = combined_df['label']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Model training
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Model evaluation
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))

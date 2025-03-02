@@ -1,0 +1,33 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Load datasets
+benign_df = pd.read_csv('1.Benign_list_big_final.csv')
+phishing_df = pd.read_csv('4.phishing.csv')
+# Load other datasets similarly...
+
+# Labeling
+benign_df['label'] = 0
+phishing_df['label'] = 1
+# Combine datasets
+data = pd.concat([benign_df, phishing_df], ignore_index=True)
+
+# Feature selection
+features = data[['URL_Length', 'URL_Depth', 'Redirection', 'https_Domain', 'Domain_Age']]  # Example features
+labels = data['label']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+# Model training
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Predictions
+y_pred = model.predict(X_test)
+
+# Evaluation
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))

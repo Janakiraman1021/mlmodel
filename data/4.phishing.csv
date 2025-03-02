@@ -1,0 +1,39 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Load datasets
+benign_df = pd.read_csv('1.Benign_list_big_final.csv')
+phishing_df = pd.read_csv('4.phishing.csv')
+valid_df = pd.read_csv('2.online-valid.csv')
+legitimate_df = pd.read_csv('3.legitimate.csv')
+urldata_df = pd.read_csv('5.urldata.csv')
+
+# Labeling
+benign_df['Label'] = 0
+phishing_df['Label'] = 1
+valid_df['Label'] = 0
+legitimate_df['Label'] = 0
+urldata_df['Label'] = urldata_df['Label'].apply(lambda x: 1 if x == 'spam' else 0)  # Adjust based on actual labels
+
+# Combine datasets
+combined_df = pd.concat([benign_df, phishing_df, valid_df, legitimate_df, urldata_df])
+
+# Feature selection and preprocessing
+features = combined_df[['URL_Length', 'URL_Depth', 'Redirection', 'https_Domain', 'Domain_Age']]  # Example features
+labels = combined_df['Label']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+# Model training
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Predictions
+y_pred = model.predict(X_test)
+
+# Evaluation
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
